@@ -10,8 +10,10 @@ public class PlayerOrbit : MonoBehaviour {
 	
 	public float disDamp=2.0f;
 	public float rotDamp=3.0f;
-	public float dist=2.0f;
+	public float dist=10.0f;
+	public float height=10.0f;
 	
+	public float vel=0.1f;
 	// Use this for initialization
 	public Vector3 gravity;
 	public float energy;
@@ -25,7 +27,7 @@ public class PlayerOrbit : MonoBehaviour {
 		theta=0;
 		phi=Mathf.PI/2;
 		gameObject.transform.position=new Vector3(5010.0f,0.0f,0.0f);
-		PlayerCam.transform.position=gameObject.transform.position;
+		PlayerCam.transform.position=new Vector3(5020.0f,0.0f,0.0f);
 		PlayerCam.rigidbody.freezeRotation=true;
 	}
 	
@@ -43,12 +45,12 @@ public class PlayerOrbit : MonoBehaviour {
 	void Update () {
 		
 		
-		//Vector3 prePostion=gameObject.transform.position;
+		Vector3 prePostion=gameObject.transform.position;
 		
 		
-		theta+=.2f*Mathf.PI/360.0f;
+		theta+=.2f*Mathf.PI/360.0f*vel;
 		
-		phi+=.3f*Mathf.PI/360.0f;
+		phi+=.3f*Mathf.PI/360.0f*vel;
 		if(theta>2*Mathf.PI)
 			theta-=2*Mathf.PI;
 		if(phi>2*Mathf.PI)
@@ -56,7 +58,8 @@ public class PlayerOrbit : MonoBehaviour {
 		
 		gameObject.transform.position=Vector3.Scale( new Vector3(5050.0f,5050.0f,5050.0f)
 		         ,new Vector3(Mathf.Sin (phi)*Mathf.Cos(theta),Mathf.Cos (phi),Mathf.Sin (phi)*Mathf.Sin(theta)));
-		Vector3 tarPostion=gameObject.transform.position;
+		gameObject.transform.rotation=Quaternion.LookRotation(gameObject.transform.position-prePostion,gameObject.transform.position);
+		Vector3 tarPostion=gameObject.transform.position-2*dist*gameObject.transform.forward+2*height*gameObject.transform.up;
 		//gameObject.transform.
 		//gameObject.transform.up=gameObject.transform.position.normalized;   
 		//gameObject.transform.forward=gameObject.rigidbody.velocity.normalized;
@@ -68,8 +71,8 @@ public class PlayerOrbit : MonoBehaviour {
 		Quaternion rotation = Quaternion.LookRotation(gameObject.transform.position - PlayerCam.transform.position,PlayerCam.transform.position);
 		
 		PlayerCam.transform.rotation = Quaternion.Slerp(PlayerCam.transform.rotation, rotation, Time.deltaTime * lookDamp);
-		if((PlayerCam.transform.position-gameObject.transform.position).magnitude>dist){
-			PlayerCam.transform.position=gameObject.transform.position-PlayerCam.transform.forward*dist;
+		if((PlayerCam.transform.position-gameObject.transform.position).magnitude>dist+height){
+			//PlayerCam.transform.position=tarPostion;
 		}
 	}
 }
