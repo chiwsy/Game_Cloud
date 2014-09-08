@@ -24,7 +24,8 @@ public class PlayerOrbit : MonoBehaviour {
 		//energy=10;
 		theta=0;
 		phi=Mathf.PI/2;
-		gameObject.transform.position=new Vector3(505.0f,0.0f,0.0f);
+		gameObject.transform.position=new Vector3(5010.0f,0.0f,0.0f);
+		PlayerCam.transform.position=gameObject.transform.position;
 		PlayerCam.rigidbody.freezeRotation=true;
 	}
 	
@@ -42,6 +43,8 @@ public class PlayerOrbit : MonoBehaviour {
 	void Update () {
 		
 		
+		//Vector3 prePostion=gameObject.transform.position;
+		
 		
 		theta+=.2f*Mathf.PI/360.0f;
 		
@@ -51,25 +54,22 @@ public class PlayerOrbit : MonoBehaviour {
 		if(phi>2*Mathf.PI)
 			phi-=2*Mathf.PI;
 		
-		gameObject.transform.position=Vector3.Scale( new Vector3(505.0f,505.0f,505.0f)
+		gameObject.transform.position=Vector3.Scale( new Vector3(5050.0f,5050.0f,5050.0f)
 		         ,new Vector3(Mathf.Sin (phi)*Mathf.Cos(theta),Mathf.Cos (phi),Mathf.Sin (phi)*Mathf.Sin(theta)));
-		         
-		Vector3 tarPostion=gameObject.transform.position-gameObject.rigidbody.velocity.normalized*dist;
+		Vector3 tarPostion=gameObject.transform.position;
+		//gameObject.transform.
+		//gameObject.transform.up=gameObject.transform.position.normalized;   
+		//gameObject.transform.forward=gameObject.rigidbody.velocity.normalized;
+		
 		PlayerCam.transform.position=new Vector3(Mathf.Lerp(PlayerCam.transform.position.x,tarPostion.x,disDamp*Time.deltaTime),
 		                                         Mathf.Lerp(PlayerCam.transform.position.y,tarPostion.y,disDamp*Time.deltaTime),
 		                                         Mathf.Lerp(PlayerCam.transform.position.z,tarPostion.z,disDamp*Time.deltaTime));
-		//PlayerCam.transform.position=gameObject.transform.position*1.05f;
-		//Vector3 tarDir=gameObject.transform.position.normalized;
-		//PlayerCam.transform.LookAt(Ground.transform.position);
-		//PlayerCam.transform.rotation=Quaternion.Slerp(PlayerCam.transform.rotation,Quaternion.Euler(PlayerCam.transform.position.normalized),Time.deltaTime*lookDamp);
-		Quaternion rotation = Quaternion.LookRotation(gameObject.transform.position - PlayerCam.transform.position);
+		//PlayerCam.transform.position=PlayerCam.transform.position.normalized*gameObject.transform.position.magnitude*1.1f;
+		Quaternion rotation = Quaternion.LookRotation(gameObject.transform.position - PlayerCam.transform.position,PlayerCam.transform.position);
 		
 		PlayerCam.transform.rotation = Quaternion.Slerp(PlayerCam.transform.rotation, rotation, Time.deltaTime * lookDamp);
-		//PlayerCam.transform.forward=-gameObject.transform.position.normalized;
-		//PlayerCam.transform.up=PlayerCam.transform.position.normalized;
-		//PlayerCam.transform.RotateAround(PlayerCam.transform.position,
-		//									gameObject.transform.position-PlayerCam.transform.position,
-		//									Mathf.Acos(Vector3.Dot(PlayerCam.transform.up.normalized,PlayerCam.transform.position.normalized)));
-		//PlayerCam.transform.LookAt(Ground.transform.position);
+		if((PlayerCam.transform.position-gameObject.transform.position).magnitude>dist){
+			PlayerCam.transform.position=gameObject.transform.position-PlayerCam.transform.forward*dist;
+		}
 	}
 }
