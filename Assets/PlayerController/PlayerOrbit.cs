@@ -4,6 +4,8 @@ using System.Collections;
 
 public class PlayerOrbit : MonoBehaviour {
 	public GameObject Ground;
+	public GameObject smoke;
+	
 	public Camera PlayerCam;
 	
 	public float lookDamp=6.0f;
@@ -21,12 +23,12 @@ public class PlayerOrbit : MonoBehaviour {
 	//public float theta;
 	//public float phi;
 	
-	public Vector3 innerVel=new Vector3(0.0f,0.0f,0.0f);//x for radius direction, y for theta, z for phi
+	public Vector3 innerVel=new Vector3(0.0f,0.1f,0.1f);//x for radius direction, y for theta, z for phi
 	public Vector3 innerPos=new Vector3(5010.0f,0.0f,Mathf.PI/2.0f);
 	//force and torque;
 	public float fv=0.05f;
 	public Vector3 friction=new Vector3(2.0f,1.0f,1.0f);
-	public Vector3 restvel=new Vector3(0.0f,0.001f,0.001f);
+	public Vector3 restvel=new Vector3(0.0f,0.1f,0.1f);
 	//public Vector3 rv;
 	
 	void Start () {
@@ -58,11 +60,11 @@ public class PlayerOrbit : MonoBehaviour {
 		Vector3 prePostion=gameObject.transform.position;
 		
 		if(Input.GetAxisRaw("Vertical")>0){
-			innerVel.x-=10.0f*fv*Time.deltaTime;
+			innerVel.x-=innerPos.x*fv*Time.deltaTime;
 			//gameObject.rigidbody.AddRelativeForce(-fv*gameObject.transform.up);
 		}
 		else if(Input.GetAxisRaw("Vertical")<0){
-			innerVel.x+=10.0f*fv*Time.deltaTime;
+			innerVel.x+=innerPos.x*fv*Time.deltaTime;
 			//gameObject.rigidbody.AddRelativeForce(fv*gameObject.transform.up);
 		}
 		if(Input.GetAxisRaw("Horizontal")>0){
@@ -93,12 +95,26 @@ public class PlayerOrbit : MonoBehaviour {
 		innerPos+=Time.deltaTime*innerVel;
 		//theta=innerPos.y;
 		//phi=innerPos.z;
+		float phi=innerPos.z;
+		float theta=innerPos.y;
+		
+		if(innerPos.z>Mathf.PI){
+			phi=2*Mathf.PI-innerPos.z;
+			theta=innerPos.y+Mathf.PI;
+		}
+		else if(innerPos.z<0){
+			phi=-innerPos.z;
+			theta=innerPos.y+Mathf.PI;
+		}
+		else{
+			phi=innerPos.z;
+		}
 		if(innerPos.y>2*Mathf.PI)
 			innerPos.y-=2*Mathf.PI;
 		if(innerPos.y<0)
 			innerPos.y+=2*Mathf.PI;
-		if(innerPos.z>2*Mathf.PI)
-			innerPos.z-=2*Mathf.PI;
+		if(innerPos.z>Mathf.PI)
+			innerPos.z=2*Mathf.PI;
 		if(innerPos.z<0)
 			innerPos.z+=2*Mathf.PI;
 		
@@ -107,9 +123,9 @@ public class PlayerOrbit : MonoBehaviour {
 		                     Mathf.Lerp(innerVel.z,restvel.z,friction.z*Time.deltaTime));
 		
 		gameObject.transform.position=Vector3.Scale( new Vector3(innerPos.x,innerPos.x,innerPos.x)
-		                                            ,new Vector3(Mathf.Sin (innerPos.z)*Mathf.Cos(innerPos.y),
-		                                            Mathf.Cos (innerPos.z),
-		                                            Mathf.Sin (innerPos.z)*Mathf.Sin(innerPos.y)));
+		                                            ,new Vector3(Mathf.Sin (phi)*Mathf.Cos(theta),
+		                                            Mathf.Cos (phi),
+		                                            Mathf.Sin (phi)*Mathf.Sin(theta)));
 		gameObject.transform.rotation=Quaternion.LookRotation(gameObject.transform.position-prePostion,gameObject.transform.position);
 		Vector3 tarPostion=gameObject.transform.position-2*dist*gameObject.transform.forward+2*height*gameObject.transform.up;
 		//gameObject.transform.
@@ -121,7 +137,8 @@ public class PlayerOrbit : MonoBehaviour {
 		                                         Mathf.Lerp(PlayerCam.transform.position.z,tarPostion.z,disDamp*Time.deltaTime));
 		//PlayerCam.transform.position=PlayerCam.transform.position.normalized*gameObject.transform.position.magnitude*1.1f;
 		Quaternion rotation = Quaternion.LookRotation(gameObject.transform.position - PlayerCam.transform.position,PlayerCam.transform.position);
-		
+		smoke.transform.position=gameObject.transform.position;
+		smoke.transform.rotation=gameObject.transform.rotation;
 		PlayerCam.transform.rotation = Quaternion.Slerp(PlayerCam.transform.rotation, rotation, Time.deltaTime * lookDamp);
 		if((PlayerCam.transform.position-gameObject.transform.position).magnitude>dist+height){
 			//PlayerCam.transform.position=tarPostion;
