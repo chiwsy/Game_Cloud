@@ -22,7 +22,7 @@ public class PlayerOrbit : MonoBehaviour {
 	public float energy;
 	//public float theta;
 	//public float phi;
-	
+	public float dirt=1.0f;
 	public Vector3 innerVel=new Vector3(0.0f,0.1f,0.1f);//x for radius direction, y for theta, z for phi
 	public Vector3 innerPos=new Vector3(5010.0f,0.0f,Mathf.PI/2.0f);
 	//force and torque;
@@ -69,18 +69,18 @@ public class PlayerOrbit : MonoBehaviour {
 		}
 		if(Input.GetAxisRaw("Horizontal")>0){
 			//gameObject.rigidbody.AddRelativeForce(-fv*gameObject.transform.right);
-			if(Mathf.Abs(innerVel.z)<1e-6) innerVel.z+=fv*Time.deltaTime;
+			if(Mathf.Abs(innerVel.z)<1e-6) innerVel.z+=dirt*fv*Time.deltaTime;
 			else{
-				float alpha=Mathf.Atan2(innerVel.y,innerVel.z);
+				float alpha=Mathf.Atan2(innerVel.y,dirt*innerVel.z);
 				innerVel.y-=fv*Mathf.Cos(alpha)*Time.deltaTime;
 				innerVel.z+=fv*Mathf.Sin(alpha)*Time.deltaTime;
 			}
 		}
 		else if(Input.GetAxisRaw("Horizontal")<0){
 			//gameObject.rigidbody.AddRelativeForce(fv*gameObject.transform.right);
-			if(Mathf.Abs(innerVel.z)<1e-6) innerVel.z+=fv*Time.deltaTime;
+			if(Mathf.Abs(innerVel.z)<1e-6) innerVel.z+=dirt*fv*Time.deltaTime;
 			else{
-				float alpha=Mathf.Atan2(innerVel.y,innerVel.z);
+				float alpha=Mathf.Atan2(innerVel.y,dirt*innerVel.z);
 				innerVel.y+=fv*Mathf.Cos(alpha)*Time.deltaTime;
 				innerVel.z-=fv*Mathf.Sin(alpha)*Time.deltaTime;
 			}
@@ -108,15 +108,19 @@ public class PlayerOrbit : MonoBehaviour {
 		}
 		else{
 			phi=innerPos.z;
+			theta=innerPos.y;
 		}
 		if(innerPos.y>2*Mathf.PI)
 			innerPos.y-=2*Mathf.PI;
 		if(innerPos.y<0)
 			innerPos.y+=2*Mathf.PI;
-		if(innerPos.z>Mathf.PI)
-			innerPos.z=2*Mathf.PI;
+		if(innerPos.z>2*Mathf.PI)
+			innerPos.z-=2*Mathf.PI;
 		if(innerPos.z<0)
 			innerPos.z+=2*Mathf.PI;
+		
+		if(innerPos.z>Mathf.PI) dirt=-1.0f;
+		else dirt=1.0f;
 		
 		innerVel=new Vector3(Mathf.Lerp(innerVel.x,restvel.x,friction.x*Time.deltaTime),
 		                     Mathf.Lerp(innerVel.y,restvel.y,friction.y*Time.deltaTime),
