@@ -45,8 +45,10 @@ public class PlayerOrbit : MonoBehaviour {
 	
 	void OnCollisionEnter(Collision collision) {
 		Collider col=collision.collider;
-		if(col.CompareTag("Ground"))
+		if(col.CompareTag("Ground")){
 			Destroy(gameObject);
+			Application.LoadLevel ("HighScore");
+			}
 		if(col.CompareTag("Cloud"))
 			col.GetComponent<RandomCloud>().die();
 	}
