@@ -25,8 +25,15 @@ public class Global : MonoBehaviour
 		public Texture2D redTex;
 		public Texture2D curTex;
 		public int level;
-		private int AsterNum;
-		public int currentAsterNum;
+		
+		//Cloud control and generating;
+		public int CloudNum=20;
+		public int currentCloudNum=0;
+		public float CloudtimePeriod=0;
+		public float CloudrefreshTimeBound=3.0f;
+		public float Radius=5000.0f;
+		public GameObject Cam;
+		
 		public int lives;
 		public int nuclearNum;
 		public float cooling;
@@ -79,8 +86,8 @@ public class Global : MonoBehaviour
 				size = new Vector2 (360, 30);
 				curTex = fullTex;
 				level = 0;
-				AsterNum = 10 * (level + 1);
-				currentAsterNum = 0;
+				//AsterNum = 10 * (level + 1);
+				//currentAsterNum = 0;
 
 				lives = 10;
 //		audio.loop = true;
@@ -92,14 +99,30 @@ public class Global : MonoBehaviour
 		// Update is called once per frame
 		void FixedUpdate ()
 		{
-			
+			CloudtimePeriod+=Time.fixedDeltaTime;
+			if(CloudtimePeriod>CloudrefreshTimeBound){
+				CloudtimePeriod=0.0f;
+				while(currentCloudNum<CloudNum){
+					Vector3 innerPos=new Vector3 (Random.Range(Radius,Radius+100.0f),
+												Random.Range(0.0f,2*Mathf.PI),
+												Random.Range(0.0f,Mathf.PI));
+					Vector3 pos=new Vector3(innerPos.x*Mathf.Sin(innerPos.z)*Mathf.Cos(innerPos.y),
+				                        innerPos.x*Mathf.Cos(innerPos.z),
+				                        innerPos.x*Mathf.Sin (innerPos.z)*Mathf.Sin(innerPos.y));
+					if(Physics.Raycast(pos,Cam.transform.position-pos)) continue;
+					else{
+						currentCloudNum++;
+						Instantiate(objToSpawn,pos,Quaternion.identity);
+					}
+				}
+			}
 		}
 
 		void Update ()
 		{
 		barDisplay = hunger / 100.0f;
 		TotalTime += Time.deltaTime;
-		if (TotalTime > 5.0f) {
+		if (TotalTime > 105.0f) {
 			TotalTime = 0;
 			hunger -= 5;
 		}

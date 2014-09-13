@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 
 public class PlayerOrbit : MonoBehaviour {
@@ -49,8 +50,13 @@ public class PlayerOrbit : MonoBehaviour {
 			Destroy(gameObject);
 			Application.LoadLevel ("HighScore");
 			}
-		if(col.CompareTag("Cloud"))
+		if(col.CompareTag("Cloud")){
+			GameObject obj = GameObject.Find ("GlobalObject");
+			Global g = obj.GetComponent<Global> ();
+			g.currentCloudNum--;
+			//col.GetComponent<Global>().currentCloudNum--;
 			col.GetComponent<RandomCloud>().die();
+			}
 	}
 	
 	// Update is called once per frame
