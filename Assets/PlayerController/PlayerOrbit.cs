@@ -15,20 +15,20 @@ public class PlayerOrbit : MonoBehaviour {
 	public float dist=10.0f;
 	public float height=10.0f;
 	
-	public float vel=0.1f;
+	public float vel=0.05f;
 	public float maxvel=0.15f;
 	// Use this for initialization
 	public Vector3 gravity;
 	public float energy;
 	//public float theta;
 	//public float phi;
-	public float dirt=1.0f;
-	public Vector3 innerVel=new Vector3(0.0f,0.1f,0.1f);//x for radius direction, y for theta, z for phi
-	public Vector3 innerPos=new Vector3(5010.0f,0.0f,Mathf.PI/2.0f);
+	float dirt=1.0f;
+	Vector3 innerVel=new Vector3(0.0f,0.1f,0.1f);//x for radius direction, y for theta, z for phi
+	Vector3 innerPos=new Vector3(5010.0f,0.0f,Mathf.PI/2.0f);
 	//force and torque;
-	public float fv=0.05f;
+	float fv=0.05f;
 	public Vector3 friction=new Vector3(2.0f,1.0f,1.0f);
-	public Vector3 restvel=new Vector3(0.0f,0.1f,0.1f);
+	public Vector3 restvel=new Vector3(0.0f,0.05f,0.05f);
 	//public Vector3 rv;
 	
 	void Start () {
@@ -46,11 +46,9 @@ public class PlayerOrbit : MonoBehaviour {
 	void OnCollisionEnter(Collision collision) {
 		Collider col=collision.collider;
 		if(col.CompareTag("Ground"))
-		//ContactPoint contact = collision.contacts[0];
-		//Quaternion rot = Quaternion.FromToRotation(Vector3.up, contact.normal);
-		//Vector3 pos = contact.point;
-		//Instantiate(explosionPrefab, pos, rot) as Transform;
-		Destroy(gameObject);
+			Destroy(gameObject);
+		if(col.CompareTag("Cloud"))
+			col.GetComponent<RandomCloud>().die();
 	}
 	
 	// Update is called once per frame
