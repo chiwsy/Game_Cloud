@@ -59,7 +59,7 @@ public class PlayerOrbit : MonoBehaviour {
 		kinetic=0.5f*gameObject.rigidbody.mass*gravity*Radius;
 		potential=2*kinetic;
 		energy=kinetic+potential;
-		eneloop=energy/10.0f;
+		eneloop=energy/3.0f;
 		gameObject.rigidbody.velocity=new Vector3(0.0f,0.0f,1.0f)*Mathf.Sqrt(energy/3.0f*2.0f/gameObject.rigidbody.mass);
 		gameObject.transform.rotation.SetLookRotation(gameObject.rigidbody.velocity,gameObject.transform.position);
 		glbObj=GameObject.Find("GlobalObject");
@@ -76,11 +76,16 @@ public class PlayerOrbit : MonoBehaviour {
 			Global g = obj.GetComponent<Global> ();
 			g.currentCloudNum--;
 			g.bonus++;
+			eneloop+=1000.0f;
+			gameObject.rigidbody.mass+=0.1f;
+			if(eneloop>kinetic) eneloop=kinetic;
 			//col.GetComponent<Global>().currentCloudNum--;
 			col.GetComponent<RandomCloud>().die();
 			}
 	}
 	void FixedUpdate(){
+		eneloop-=50.0f*Time.fixedDeltaTime;
+		if(eneloop<0) eneloop=0;
 		glbObj.GetComponent<Global>().distance+=gameObject.rigidbody.velocity.magnitude*Time.fixedDeltaTime;
 		foreach(Transform child in rain.transform){
 			child.renderer.enabled=false;
@@ -105,6 +110,8 @@ public class PlayerOrbit : MonoBehaviour {
 		else if(Input.GetAxisRaw("Vertical")<0){
 			//innerVel.x+=innerPos.x*fv*Time.deltaTime;
 			gameObject.rigidbody.AddForce(fv*gameObject.transform.up);
+			gameObject.rigidbody.mass-=0.01f*Time.fixedDeltaTime;
+			if(gameObject.rigidbody.mass<0.1f) Application.LoadLevel ("HighScore");
 			foreach(Transform child in rain.transform){
 				child.renderer.enabled=true;
 			}
@@ -126,6 +133,7 @@ public class PlayerOrbit : MonoBehaviour {
 			gameObject.rigidbody.velocity=transform.TransformDirection(localvel);
 			AudioSource.PlayClipAtPoint(windsound,gameObject.transform.position);
 		}	
+		smoke.transform.localScale=new Vector3(10.0f,10.0f,10.0f)*gameObject.rigidbody.mass;
 		
 		gameObject.rigidbody.AddForce(-gameObject.transform.position.normalized*gravity);
 		
@@ -156,9 +164,8 @@ public class PlayerOrbit : MonoBehaviour {
 		//innerVel=gameObject.rigidbody.velocity;
 			foreach(Transform child in smoke.transform){
 				child.renderer.enabled=true;
-				child.renderer.material.color=new Color(1f,1f,1f,.5f);
+				child.renderer.material.color=new Color(0.9f,0.9f,0.9f,Mathf.Clamp( eneloop/kinetic,0.1f,1.0f));
 			}
-			
 			//smoke.renderer.enabled=false;
 			//child.renderer.material.color = new Color (1f, 1f, 1f, tr);
 		
